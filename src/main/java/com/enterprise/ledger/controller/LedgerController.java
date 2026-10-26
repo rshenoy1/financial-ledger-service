@@ -31,9 +31,17 @@ public class LedgerController {
     @GetMapping("/stress-threads")
     public ResponseEntity<Map<String, Object>> stressThreads() {
         int targetThreads = 50;
-        
-        // Hardened Fix: Use the thread-per-task factory to support all build runners
-        try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory())) {
+        ExecutorService executor;
+
+        // 🔒 Universal Fix: Dynamic resolution of the virtual thread task pool
+        try {
+            java.lang.reflect.Method method = Executors.class.getMethod("newVirtualThreadPerTaskExecutor");
+            executor = (ExecutorService) method.invoke(null);
+        } catch (Exception e) {
+            executor = Executors.newCachedThreadPool();
+        }
+
+        try {
             for (int i = 0; i < targetThreads; i++) {
                 executor.submit(() -> {
                     try {
@@ -43,6 +51,8 @@ public class LedgerController {
                     }
                 });
             }
+        } finally {
+            executor.shutdown();
         }
 
         return ResponseEntity.ok(Map.of(
