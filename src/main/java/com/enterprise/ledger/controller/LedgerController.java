@@ -1,10 +1,12 @@
 package com.enterprise.ledger.controller;
 
 import com.enterprise.ledger.dto.TransactionRequest;
-import com.enterprise.ledger.dto.TransactionMutationResponse;
+import com.enterprise.ledger.dto.TransactionResponse;
+import com.enterprise.ledger.model.Account;
 import com.enterprise.ledger.service.LedgerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,10 +23,23 @@ public class LedgerController {
     }
 
     @PostMapping("/accounts/{id}/transaction")
-    public ResponseEntity<TransactionMutationResponse> processTransaction(
+    public ResponseEntity<TransactionResponse> processTransaction(
             @PathVariable Long id, 
             @RequestBody TransactionRequest request) {
-        TransactionMutationResponse response = ledgerService.executeMutation(id, request.amount());
+        
+        // Execute the balanced mutations using your precise retry method signature
+        Account updatedAccount = ledgerService.adjustBalanceWithRetry(id, request.amount());
+        
+        // Map the database entity outputs onto your fresh TransactionResponse contract
+        TransactionResponse response = new TransactionResponse(
+            System.currentTimeMillis(),
+            updatedAccount.getId(),
+            request.amount(),
+            request.amount().compareTo(java.math.BigDecimal.ZERO) >= 0 ? "CREDIT" : "DEBIT",
+            Instant.now(),
+            updatedAccount.getBalance()
+        );
+        
         return ResponseEntity.ok(response);
     }
 
@@ -33,7 +48,6 @@ public class LedgerController {
         int targetThreads = 50;
         ExecutorService executor;
 
-        // 🔒 Universal Fix: Dynamic resolution of the virtual thread task pool
         try {
             java.lang.reflect.Method method = Executors.class.getMethod("newVirtualThreadPerTaskExecutor");
             executor = (ExecutorService) method.invoke(null);
