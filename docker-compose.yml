@@ -1,0 +1,33 @@
+﻿version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: ledger-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ledger_db
+      POSTGRES_USER: ledger_user
+      POSTGRES_PASSWORD: SecureVaultPass2026!
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # High-concurrency performance parameters matching our virtual thread scale
+    command: [
+      "postgres",
+      "-c", "max_connections=200",
+      "-c", "shared_buffers=512MB",
+      "-c", "effective_cache_size=1536MB",
+      "-c", "work_mem=16MB",
+      "-c", "maintenance_work_mem=128MB"
+    ]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledger_user -d ledger_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    driver: local
