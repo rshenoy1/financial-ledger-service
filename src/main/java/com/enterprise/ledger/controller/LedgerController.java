@@ -1,10 +1,10 @@
 package com.enterprise.ledger.controller;
 
+import com.enterprise.ledger.dto.TransactionRequest;
 import com.enterprise.ledger.model.Account;
 import com.enterprise.ledger.service.LedgerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
@@ -20,8 +20,8 @@ public class LedgerController {
     @PostMapping("/accounts/{id}/transaction")
     public ResponseEntity<Account> executeTransaction(
             @PathVariable Long id,
-            @RequestParam BigDecimal amount) {
-        Account updatedAccount = ledgerService.adjustBalanceWithRetry(id, amount);
+            @RequestBody TransactionRequest request) {
+        Account updatedAccount = ledgerService.adjustBalanceWithRetry(id, request.getAmount());
         return ResponseEntity.ok(updatedAccount);
     }
 
