@@ -86,10 +86,9 @@
     <build>
         <plugins>
             <plugin>
-                <Spring-boot-maven-plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                </Spring-boot-maven-plugin>
+                <!-- 🔒 Hardened Fix: Enforce perfect lowercase syntax rules to ensure clean builds -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
