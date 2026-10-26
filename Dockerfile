@@ -7,10 +7,13 @@ WORKDIR /build
 # Copy build definition files first to optimize Docker layer caching
 COPY pom.xml .
 
-# Copy application source files explicitly to bring in resources before compilation
+# 📥 Hardened fix: Force explicit resolution of new security dependencies
+RUN mvn dependency:go-offline -B
+
+# Copy application source files explicitly to bring in security source classes
 COPY src ./src
 
-# Compile and package the application artifact, ensuring Flyway assets are packaged inside the jar
+# Compile and package the application artifact, bypassing tests and vulnerability scans inside the sandbox
 RUN mvn clean package -DskipTests -Ddependency-check.skip=true -B
 
 # ===================================================================
