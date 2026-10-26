@@ -4,7 +4,7 @@
   "tags": ["production", "ledger"],
   "timezone": "browser",
   "schemaVersion": 38,
-  "version": 3,
+  "version": 4,
   "refresh": "2s",
   "time": {
     "from": "now-5m",
@@ -19,8 +19,7 @@
       "id": 1,
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "Prometheus"},
-          # 🔒 Hardened Fix: Match the exact double-suffixed string exported by the app container
+          "datasource": {"type": "prometheus", "uid": "ab18edb6-e2fd-46f0-ba92-19a589d0adc6"},
           "expr": "jvm_threads_virtual_vthreads_threads",
           "format": "time_series",
           "refId": "A"
