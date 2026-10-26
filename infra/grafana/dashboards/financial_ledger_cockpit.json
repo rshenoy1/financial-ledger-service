@@ -1,0 +1,33 @@
+{
+  "id": null,
+  "title": "Financial Ledger Cockpit",
+  "tags": ["production", "ledger"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "2s",
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "JVM Active Virtual Threads",
+      "description": "Real-time count tracking active user-space virtual threads running in the JVM heap.",
+      "gridPos": {"h": 12, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "Prometheus"},
+          "expr": "jvm_threads_virtual_vthreads_threads",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom"}
+      }
+    }
+  ]
+}

@@ -1,5 +1,4 @@
 services:
-  # Tier 1: Relational Database Storage Cluster
   postgres-db:
     image: postgres:16-alpine
     container_name: ledger-postgres
@@ -20,7 +19,6 @@ services:
     networks:
       - ledger-network
 
-  # Tier 2: High-Volume Java 21 Processing Container
   ledger-app:
     image: financial-ledger-service:1.0.0
     container_name: ledger-app
@@ -36,7 +34,6 @@ services:
     networks:
       - ledger-network
 
-  # Tier 3: Telemetry Collector Engine (Prometheus)
   prometheus:
     image: prom/prometheus:v2.45.0
     container_name: ledger-prometheus
@@ -49,7 +46,6 @@ services:
     networks:
       - ledger-network
 
-  # Tier 4: Visualization UI Dashboard (Grafana)
   grafana:
     image: grafana/grafana:10.2.0
     container_name: ledger-grafana
@@ -57,6 +53,10 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      # 🚀 Production Binding: Freeze datasources and dashboards directly into Grafana's core memory space
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning
+      - ./infra/grafana/dashboards:/etc/grafana/dashboards
     depends_on:
       - prometheus
     networks:
