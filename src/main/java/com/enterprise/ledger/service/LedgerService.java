@@ -1,17 +1,12 @@
-﻿package com.enterprise.ledger.service;
+package com.enterprise.ledger.service;
 
 import com.enterprise.ledger.model.Account;
 import com.enterprise.ledger.repository.AccountRepository;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 
-/**
- * Enterprise Service Layer coordinating financial ledger transactions.
- * Leverages non-blocking optimistic retry loops to handle high concurrent workloads smoothly.
- */
 @Service
 public class LedgerService {
 
@@ -21,24 +16,18 @@ public class LedgerService {
         this.accountRepository = accountRepository;
     }
 
-    /**
-     * Executes a high-concurrency balance modification transaction with automated optimistic retry logic.
-     * Prevents database lock contention while safely mutating financial balances.
-     */
     public Account adjustBalanceWithRetry(Long accountId, BigDecimal amountDelta) {
         int maxAttempts = 3;
         int backoffMs = 50;
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                // Delegate to an internal transactional block to guarantee proper commitment boundaries
                 return executeAdjustmentTransaction(accountId, amountDelta);
             } catch (ObjectOptimisticLockingFailureException ex) {
                 if (attempt == maxAttempts) {
                     throw new RuntimeException("Transaction failed: High concurrency conflict ceiling reached after " + maxAttempts + " attempts.", ex);
                 }
                 try {
-                    // Non-blocking wait state allowing concurrent virtual worker contexts to clear down rows
                     Thread.sleep(backoffMs * attempt);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
