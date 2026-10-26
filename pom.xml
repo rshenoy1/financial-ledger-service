@@ -18,7 +18,9 @@
     <description>Production-grade high-concurrency ledger service with Java 21 and Virtual Threads</description>
 
     <properties>
-        <java.version>21</java.version>
+        <!-- 🔓 Decouple standard release properties to permit internal JDK exports -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <owasp.dependency-check.version>9.0.9</owasp.dependency-check.version>
@@ -93,7 +95,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>21</release>
                     <compilerArgs>
                         <!-- 🔒 Permits the compiler to access extended management extensions natively -->
                         <arg>--add-exports=jdk.management/com.sun.management.internal=ALL-UNNAMED</arg>
