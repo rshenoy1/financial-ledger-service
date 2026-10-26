@@ -6,7 +6,8 @@ import com.enterprise.ledger.service.LedgerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -27,25 +28,28 @@ public class LedgerController {
         return ResponseEntity.ok(response);
     }
 
-    // ⚡ TELEMETRY DRILL: Spawns and locks 500 Virtual Threads for 10 seconds to force a visual telemetry spike
+    // ⚡ SAFE TELEMETRY DRILL: Stacks 50 virtual threads held open via controlled worker sleep loops
     @GetMapping("/stress-threads")
     public ResponseEntity<Map<String, Object>> stressThreads() {
-        int threadCount = 500;
-        CountDownLatch latch = new CountDownLatch(1);
-
-        for (int i = 0; i < threadCount; i++) {
-            Thread.startVirtualThread(() -> {
-                try {
-                    latch.await(10, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            });
+        int targetThreads = 50;
+        
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int i = 0; i < targetThreads; i++) {
+                executor.submit(() -> {
+                    try {
+                        // Keeps the user-space thread held active on the heap for 12 seconds
+                        TimeUnit.SECONDS.sleep(12);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                });
+            }
         }
 
         return ResponseEntity.ok(Map.of(
-            "message", "Successfully spawned 500 virtual worker threads locked for 10 seconds!",
-            "targetCount", threadCount
+            "status", "Sustained load active",
+            "activeGaugesAllocated", targetThreads,
+            "durationSeconds", 12
         ));
     }
 
