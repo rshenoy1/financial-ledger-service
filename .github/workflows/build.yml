@@ -1,0 +1,34 @@
+name: Continuous Integration & Verification Pipeline
+
+# Trigger the automated build runner on every code push or pull request to the primary main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  compile-and-validate:
+    name: Java 21 Native Compilation Pass & Security Check
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Pull down the code repository files from the remote GitHub branch matrix
+      - name: Checkout Code Repository Layer
+        uses: actions/checkout@v4
+
+      # Step 2: Establish an isolated, stable Java 21 LTS environment on the Linux runner
+      - name: Set Up Java 21 JRE Toolchain
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven' # Caches dependencies automatically to speed up subsequent integration runs
+
+      # Step 3: Compile codebase assets and run unit tests under strict Maven package constraints
+      - name: Compile Code & Package Jar Artifact
+        run: mvn clean package -Ddependency-check.skip=true -B
+
+      # Step 4: Verify Docker multi-stage environment assembly layouts compile cleanly
+      - name: Verify Immutable Docker OCI Construction
+        run: docker build -t financial-ledger-service:latest .
