@@ -1,4 +1,4 @@
-﻿version: '3.8'
+version: '3.8'
 
 services:
   postgres-db:
@@ -37,10 +37,14 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/ledger_db
       - SPRING_DATASOURCE_USERNAME=ledger_user
       - SPRING_DATASOURCE_PASSWORD=SecureVaultPass2026!
+      # Force Flyway to look at both the internal classpath and external mounted scripts folder path
+      - SPRING_FLYWAY_LOCATIONS=classpath:db/migration,file:/app/src/main/resources/db/migration
+    volumes:
+      # Maps your exact local C: drive SQL migration folder straight into the container runtime environment
+      - ./src/main/resources:/app/src/main/resources:ro
     depends_on:
       postgres-db:
         condition: service_healthy
-
 volumes:
   pgdata:
     driver: local
