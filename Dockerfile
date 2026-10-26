@@ -4,10 +4,13 @@
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 WORKDIR /build
 
+# Copy build definition files first to optimize Docker layer caching
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
 
+# Copy application source files explicitly to bring in resources before compilation
 COPY src ./src
+
+# Compile and package the application artifact, ensuring Flyway assets are packaged inside the jar
 RUN mvn clean package -DskipTests -Ddependency-check.skip=true -B
 
 # ===================================================================
