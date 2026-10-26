@@ -4,20 +4,19 @@ import java.math.BigDecimal;
 
 /**
  * Hardened production-grade DTO mapping incoming JSON transactional payloads.
- * Explicitly satisfies full Jackson deserializer JavaBean access requirements.
+ * Satisfies JavaBean contract conventions for smooth Jackson serialization.
  */
 public class TransactionRequest {
     
     private BigDecimal amount;
 
-    // Mandatory No-Args Constructor required for dynamic JSON Reflection
+    // Explicit Default Constructor required for JSON serialization reflection
     public TransactionRequest() {}
 
     public TransactionRequest(BigDecimal amount) {
         this.amount = amount;
     }
 
-    // Public Getters and Setters satisfying JavaBean specifications
     public BigDecimal getAmount() { 
         return amount; 
     }
