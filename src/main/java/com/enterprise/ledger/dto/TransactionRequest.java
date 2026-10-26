@@ -3,25 +3,9 @@ package com.enterprise.ledger.dto;
 import java.math.BigDecimal;
 
 /**
- * Hardened production-grade DTO mapping incoming JSON transactional payloads.
- * Satisfies JavaBean contract conventions for smooth Jackson serialization.
+ * Modern production-grade immutable request DTO using Java 21 Record syntax.
+ * Natively supports Jackson deserialization without boilerplate accessors or constructors.
  */
-public class TransactionRequest {
-    
-    private BigDecimal amount;
-
-    // Explicit Default Constructor required for JSON serialization reflection
-    public TransactionRequest() {}
-
-    public TransactionRequest(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public BigDecimal getAmount() { 
-        return amount; 
-    }
-    
-    public void setAmount(BigDecimal amount) { 
-        this.amount = amount; 
-    }
+public record TransactionRequest(BigDecimal amount) {
+    // Canonical constructors, getters, and standard mappings are automatically handled by the JVM
 }
