@@ -3,12 +3,17 @@ package com.enterprise.ledger.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+/**
+ * Enterprise core Account database entity model.
+ * Hardened for massive concurrency using explicit database sequence parameters.
+ */
 @Entity
 @Table(name = "accounts")
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "accounts_seq_gen")
+    @SequenceGenerator(name = "accounts_seq_gen", sequenceName = "accounts_id_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "account_holder", nullable = false, length = 100)
