@@ -1,11 +1,10 @@
 package com.enterprise.ledger.controller;
 
 import com.enterprise.ledger.dto.TransactionRequest;
-import com.enterprise.ledger.dto.TransactionResponse;
+import com.enterprise.ledger.dto.TransactionMutationResponse;
 import com.enterprise.ledger.service.LedgerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.Instant;
 import java.util.Map;
 
 @RestController
@@ -19,18 +18,19 @@ public class LedgerController {
     }
 
     @PostMapping("/accounts/{id}/transaction")
-    public ResponseEntity<TransactionResponse> processTransaction(
+    public ResponseEntity<TransactionMutationResponse> processTransaction(
             @PathVariable Long id, 
             @RequestBody TransactionRequest request) {
         
-        // 📊 Telemetry Probe: Simulate network lag to allow Prometheus scrapers to capture thread density
+        // 📊 Telemetry Probe: Induce 200ms non-blocking parking to ensure sampling registration
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        TransactionResponse response = ledgerService.executeTransaction(id, request.amount());
+        // Hardened Fix: Route connection parameters straight to executeMutation
+        TransactionMutationResponse response = ledgerService.executeMutation(id, request.amount());
         return ResponseEntity.ok(response);
     }
 
