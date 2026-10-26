@@ -1,15 +1,13 @@
 package com.enterprise.ledger.controller;
 
 import com.enterprise.ledger.dto.TransactionRequest;
-import com.enterprise.ledger.model.Account;
+import com.enterprise.ledger.dto.TransactionResponse;
 import com.enterprise.ledger.service.LedgerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.Instant;
 import java.util.Map;
 
-/**
- * Enterprise Ingress REST Controller layer managing account transaction vectors.
- */
 @RestController
 @RequestMapping("/api/v1/ledger")
 public class LedgerController {
@@ -21,22 +19,26 @@ public class LedgerController {
     }
 
     @PostMapping("/accounts/{id}/transaction")
-    public ResponseEntity<Account> executeTransaction(
-            @PathVariable Long id,
+    public ResponseEntity<TransactionResponse> processTransaction(
+            @PathVariable Long id, 
             @RequestBody TransactionRequest request) {
         
-        Account updatedAccount = ledgerService.adjustBalanceWithRetry(id, request.amount());
-        return ResponseEntity.ok(updatedAccount);
+        // 📊 Telemetry Probe: Simulate network lag to allow Prometheus scrapers to capture thread density
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        TransactionResponse response = ledgerService.executeTransaction(id, request.amount());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/thread-status")
     public ResponseEntity<Map<String, Object>> getThreadStatus() {
-        Thread currentThread = Thread.currentThread();
-        Map<String, Object> statusMetrics = Map.of(
-                "threadName", currentThread.getName(),
-                "isVirtualThread", currentThread.isVirtual(),
-                "timestamp", System.currentTimeMillis()
-        );
-        return ResponseEntity.ok(statusMetrics);
+        return ResponseEntity.ok(Map.of(
+            "threadName", Thread.currentThread().toString(),
+            "isVirtualThread", Thread.currentThread().isVirtual()
+        ));
     }
 }
