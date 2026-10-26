@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 /**
- * Hardened production-grade automated database initialization module.
- * Hooks explicitly into the ApplicationReadyEvent to guarantee framework context stability.
+ * Production-hardened database seed initializer module.
+ * Delegates primary key allocation completely to native sequence managers to pass Jpa lifecycle criteria.
  */
 @Component
 public class DataInitializer {
@@ -22,15 +22,16 @@ public class DataInitializer {
     }
 
     /**
-     * Spawns programmatically seeded financial ledger rows.
-     * Runs strictly after the application container is fully initialized and operational.
+     * Seeds base financial clearing parameters safely after database migrations settle.
+     * Respects JPA persistence boundary rules to avoid context crashing loops.
      */
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void onApplicationReady() {
-        if (!accountRepository.existsById(1L)) {
+        // Safe check using a query probe before generating rows
+        if (accountRepository.count() == 0) {
+            // Leave ID completely blank to let accounts_id_seq allocate values natively
             Account clearingAccount = new Account("Enterprise Production Clearing Account", new BigDecimal("500000.0000"));
-            clearingAccount.setId(1L);
             accountRepository.save(clearingAccount);
         }
     }
