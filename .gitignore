@@ -1,0 +1,23 @@
+# Target Build & Artifact Directories
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Runtime Diagnostics & Stealthed Logs
+buildlog.txt
+*.log
+
+# VS Code Metadata & Language Server Overhead
+.vscode/
+!.vscode/extensions.json
+.factorypath
+.project
+.settings/
+.classpath
+bin/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
