@@ -25,21 +25,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Disable Cross-Site Request Forgery (CSRF) for our stateless REST API architecture
-            .csrf(csrf -> http.csrf(c -> c.disable()))
+            // 1. Disable CSRF securely utilizing standard Spring Boot 3.x declarative lambdas
+            .csrf(csrf -> csrf.disable())
             
-            // 2. Enforce a stateless session policy (no HTTP sessions are allowed to reside in RAM)
+            // 2. Enforce an absolute stateless session data footprint policy
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
-            // 3. Define path routing authentication parameters
+            // 3. Define path access parameters
             .authorizeHttpRequests(auth -> auth
-                // Allow actuator health metrics to remain open for infrastructure monitoring
                 .requestMatchers("/actuator/**").permitAll()
-                // Explicitly lock down all financial ledger transaction endpoint routes
                 .anyRequest().authenticated()
             )
             
-            // 4. Inject our custom JWT token verification filter before the standard authentication processor
+            // 4. Inject our custom token interceptor filter layer
             .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
