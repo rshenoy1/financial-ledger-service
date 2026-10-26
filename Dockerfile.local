@@ -1,0 +1,12 @@
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Provision a restricted non-root runtime system user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+# Extract your pre-compiled host-built executable jar straight into the container space
+COPY target/*.jar app.jar
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
