@@ -4,30 +4,31 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Configuration;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
-import java.lang.reflect.Method;
 
 /**
- * Custom infrastructure telemetry binder hooking directly into JVM reflection counters.
- * Dynamically registers active Java 21 Virtual Thread metrics into the Prometheus registry.
+ * Hardened infrastructure configuration utilizing direct platform interface casting.
+ * Provides stable, type-safe metrics tracking for Java 21 Virtual Threads.
  */
 @Configuration
 public class VirtualThreadMetricsConfig {
 
     public VirtualThreadMetricsConfig(MeterRegistry registry) {
-        ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        java.lang.management.ThreadMXBean baseBean = ManagementFactory.getThreadMXBean();
         
-        // Use reflection to safely capture Java 21 virtual thread counts across Alpine platforms
-        Gauge.builder("jvm.threads.virtual.vthreads", threadMXBean, bean -> {
-            try {
-                Method method = bean.getClass().getMethod("getVirtualThreadCount");
-                return ((Number) method.invoke(bean)).doubleValue();
-            } catch (Exception e) {
-                return 0.0;
-            }
-        })
-        .description("The current number of active user-space virtual threads running in the JVM heap")
-        .baseUnit("threads")
-        .register(registry);
+        // Check if the underlying bean supports modern extended HotSpot monitoring functions
+        if (baseBean instanceof com.sun.management.ThreadMXBean) {
+            com.sun.management.ThreadMXBean extendedMXBean = (com.sun.management.ThreadMXBean) baseBean;
+            
+            Gauge.builder("jvm.threads.virtual.vthreads", extendedMXBean, bean -> {
+                try {
+                    return (double) bean.getVirtualThreadCount();
+                } catch (Exception e) {
+                    return 0.0;
+                }
+            })
+            .description("The current number of active user-space virtual threads running in the JVM heap")
+            .baseUnit("threads")
+            .register(registry);
+        }
     }
 }
