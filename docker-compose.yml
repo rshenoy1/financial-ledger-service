@@ -18,8 +18,8 @@ services:
       "-c", "max_connections=200",
       "-c", "shared_buffers=512MB",
       "-c", "effective_cache_size=1536MB",
-      "work_mem=16MB",
-      "maintenance_work_mem=128MB"
+      "-c", "work_mem=16MB",
+      "-c", "maintenance_work_mem=128MB"
     ]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ledger_user -d ledger_db"]
@@ -37,10 +37,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/ledger_db
       - SPRING_DATASOURCE_USERNAME=ledger_user
       - SPRING_DATASOURCE_PASSWORD=SecureVaultPass2026!
-      # Hardened fix: shifted location configurations to utilize filesystem: syntax
-      - SPRING_FLYWAY_LOCATIONS=classpath:db/migration,filesystem:/app/src/main/resources/db/migration
-    volumes:
-      - ./src/main/resources:/app/src/main/resources:ro
     depends_on:
       postgres-db:
         condition: service_healthy
