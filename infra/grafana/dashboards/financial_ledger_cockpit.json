@@ -4,7 +4,7 @@
   "tags": ["production", "ledger"],
   "timezone": "browser",
   "schemaVersion": 38,
-  "version": 4,
+  "version": 10,
   "refresh": "2s",
   "time": {
     "from": "now-5m",
@@ -19,7 +19,8 @@
       "id": 1,
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "ab18edb6-e2fd-46f0-ba92-19a589d0adc6"},
+          # 🔒 Universal Fix: Swap the hardcoded crypto ID string token out for the automatic default pointer
+          "datasource": {"type": "prometheus", "uid": "default"},
           "expr": "jvm_threads_virtual_vthreads_threads",
           "format": "time_series",
           "refId": "A"
