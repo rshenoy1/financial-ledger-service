@@ -24,8 +24,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // 🔓 Explicitly open the authentication endpoint paths to permit token generation
+                // 🔓 Permits unrestricted access to public auth entry lines
                 .requestMatchers("/api/v1/ledger/auth/**").permitAll()
+                // 📊 Hardened Fix: Open the core Actuator telemetry pathways for Prometheus scrapers
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
