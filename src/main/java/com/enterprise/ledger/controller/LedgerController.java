@@ -28,16 +28,15 @@ public class LedgerController {
         return ResponseEntity.ok(response);
     }
 
-    // ⚡ SAFE TELEMETRY DRILL: Stacks 50 virtual threads held open via controlled worker sleep loops
     @GetMapping("/stress-threads")
     public ResponseEntity<Map<String, Object>> stressThreads() {
         int targetThreads = 50;
         
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        // Hardened Fix: Use the thread-per-task factory to support all build runners
+        try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory())) {
             for (int i = 0; i < targetThreads; i++) {
                 executor.submit(() -> {
                     try {
-                        // Keeps the user-space thread held active on the heap for 12 seconds
                         TimeUnit.SECONDS.sleep(12);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
