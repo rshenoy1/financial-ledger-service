@@ -18,10 +18,7 @@
     <description>Production-grade high-concurrency ledger service with Java 21 and Virtual Threads</description>
 
     <properties>
-        <!-- 🔓 Enforce strict Java 21 baseline parameters across properties blocks -->
         <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <owasp.dependency-check.version>9.0.9</owasp.dependency-check.version>
@@ -89,21 +86,10 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <!-- 🔒 Explicitly override the parent POM release property to bypass compilation walls -->
-                    <source>21</source>
-                    <target>21</target>
-                    <fork>true</fork>
-                    <compilerArgs>
-                        <arg>--add-exports=jdk.management/com.sun.management.internal=ALL-UNNAMED</arg>
-                    </compilerArgs>
-                </configuration>
+                <Spring-boot-maven-plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </Spring-boot-maven-plugin>
             </plugin>
         </plugins>
     </build>

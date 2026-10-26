@@ -4,7 +4,7 @@
   "tags": ["production", "ledger"],
   "timezone": "browser",
   "schemaVersion": 38,
-  "version": 15,
+  "version": 40,
   "refresh": "2s",
   "time": {
     "from": "now-5m",
@@ -13,15 +13,14 @@
   "panels": [
     {
       "type": "timeseries",
-      "title": "JVM Active Virtual Threads",
-      "description": "Real-time count tracking active user-space virtual threads running in the JVM heap.",
+      "title": "JVM Live Active Threads Pool",
+      "description": "Real-time count tracking total active thread processing pools running in the application container.",
       "gridPos": {"h": 12, "w": 24, "x": 0, "y": 0},
       "id": 1,
       "targets": [
         {
           "datasource": {"type": "prometheus", "uid": "default"},
-          # 🔒 Naming Fix: Point exactly to the double-suffixed name verified in the database
-          "expr": "jvm_threads_virtual_vthreads_threads",
+          "expr": "jvm_threads_live_threads",
           "format": "time_series",
           "refId": "A"
         }
